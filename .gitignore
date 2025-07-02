@@ -28,7 +28,7 @@ dist-ssr
 /node_modules
 /.vite
 /dist
-/docs
+#/docs
 .env
 npm-debug.log*
 .DS_Store
