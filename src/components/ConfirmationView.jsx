@@ -1,11 +1,9 @@
 // src/components/ConfirmationView.jsx
 
 export default function ConfirmationView({ pet, onReset }) {
-  // turn “space octopus” → “space-octopus.png”
   const fileName = pet.type.replace(/ /g, "-").toLowerCase();
-  // build the path under public/images/
-  const imageSrc = `/images/${fileName}.png`;
-
+  // This will become "/React_LonelyPets/images/dragon.png" on Pages
+  const imageSrc = import.meta.env.BASE_URL + `images/${fileName}.png`;
   return (
     <section id="confirmation" className="confirmation-view">
       <h2 className="confirmation-header">You have been matched with</h2>
