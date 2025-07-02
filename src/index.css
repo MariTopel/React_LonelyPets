@@ -1,0 +1,143 @@
+/* src/index.css */
+
+/* ---- Layout & typography ---- */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+.app-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* ---- PetForm ---- */
+#pet-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#pet-form label {
+  font-weight: 600;
+}
+
+#pet-form select,
+#pet-form input {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+#pet-form button {
+  padding: 0.75rem;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#pet-form button:hover {
+  background-color: #4338ca;
+}
+
+/* ---- ConfirmationView ---- */
+#confirmation {
+  text-align: center;
+}
+
+#confirmation img {
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+}
+
+#confirmation button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#confirmation button:hover {
+  background-color: #dc2626;
+}
+
+/* ---- ChatView ---- */
+#chat {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#chat-messages {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chat-bubble {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+.user-bubble {
+  align-self: flex-end;
+  background-color: #4f46e5;
+  color: white;
+  border-bottom-right-radius: 0;
+}
+
+.pet-bubble {
+  align-self: flex-start;
+  background-color: #e5e7eb;
+  color: #111827;
+  border-bottom-left-radius: 0;
+}
+
+#chat-input-area {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#chat-input-area input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+#chat-input-area button {
+  padding: 0.5rem 1rem;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#chat-input-area button:hover {
+  background-color: #059669;
+}

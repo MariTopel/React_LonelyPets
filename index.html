@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Transformers.js loader: exposes window.loadGenerator()
+     this is the browser installed AI -->
+    <script type="module">
+      import { pipeline } from "https://unpkg.com/@xenova/transformers/dist/transformers.min.js";
+
+      window.loadGenerator = async () => {
+        console.log("Loading tiny model…");
+        const gen = await pipeline("text-generation", "Xenova/distilgpt2");
+        console.log("Model loaded");
+        return gen;
+      };
+
+      console.log("loadGenerator is ready");
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
