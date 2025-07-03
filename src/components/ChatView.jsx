@@ -1,5 +1,6 @@
 // src/components/ChatView.jsx
 import { useState, useEffect, useRef } from "react";
+import { generatePetReply } from "../utils/generatePetReply";
 
 export default function ChatView() {
   const [messages, setMessages] = useState(
@@ -13,27 +14,24 @@ export default function ChatView() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  function handleSend() {
+  // 1) Make handleSend async
+  async function handleSend() {
     const text = input.trim();
     if (!text) return;
 
+    // 2) push user's message
     setMessages((prev) => [...prev, { who: "You", text }]);
     setInput("");
 
-    //this is the ai chatbot
-    export async function generatePetReply(userText) {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        body: JSON.stringify({ prompt: userText }),
-      });
-      const data = await res.json();
-      return data.reply;
-    }
+    // 3) get the AI's reply and push it
+    const reply = await generatePetReply(text);
+    setMessages((prev) => [...prev, { who: "Pet", text: reply }]);
   }
 
   return (
-    <section id="chat">
+    <section id="chat" className="chat-view">
       <h2>Chat with your pet</h2>
+
       <div id="chat-messages">
         {messages.map((m, i) => (
           <div
@@ -47,6 +45,7 @@ export default function ChatView() {
         ))}
         <div ref={endRef} />
       </div>
+
       <div id="chat-input-area">
         <input
           type="text"
@@ -54,6 +53,7 @@ export default function ChatView() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message…"
         />
+        {/* 4) onClick now calls the async handle */}
         <button onClick={handleSend}>Send</button>
       </div>
     </section>
