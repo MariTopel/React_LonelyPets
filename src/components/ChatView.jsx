@@ -1,6 +1,6 @@
 // src/components/ChatView.jsx
 import { useState, useEffect, useRef } from "react";
-import { generatePetReply } from "../utils/generatePetReply";
+import { generatePetReply } from "../utils/generatePetReply.js";
 
 export default function ChatView() {
   const [messages, setMessages] = useState(
