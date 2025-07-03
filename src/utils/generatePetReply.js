@@ -1,5 +1,5 @@
 export async function generatePetReply(userText) {
-  const res = await fetch("https://react-lonely-pets.vercel.app/", {
+  const res = await fetch("https://react-lonely-pets.vercel.app/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt: userText }),
