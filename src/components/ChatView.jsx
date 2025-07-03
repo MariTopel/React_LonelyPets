@@ -14,18 +14,23 @@ export default function ChatView() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 1) Make handleSend async
   async function handleSend() {
     const text = input.trim();
     if (!text) return;
 
-    // 2) push user's message
     setMessages((prev) => [...prev, { who: "You", text }]);
     setInput("");
 
-    // 3) get the AI's reply and push it
-    const reply = await generatePetReply(text);
-    setMessages((prev) => [...prev, { who: "Pet", text: reply }]);
+    try {
+      const reply = await generatePetReply(text);
+      setMessages((prev) => [...prev, { who: "Pet", text: reply }]);
+    } catch (err) {
+      console.error("🚨 generatePetReply failed:", err);
+      setMessages((prev) => [
+        ...prev,
+        { who: "Pet", text: "😿 Sorry, something went wrong." },
+      ]);
+    }
   }
 
   return (
