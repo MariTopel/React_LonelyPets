@@ -20,8 +20,15 @@ export default function ChatView() {
     setMessages((prev) => [...prev, { who: "You", text }]);
     setInput("");
 
-    const reply = "🐾 This is a pre-made pet response!";
-    setMessages((prev) => [...prev, { who: "Pet", text: reply }]);
+    //this is the ai chatbot
+    export async function generatePetReply(userText) {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        body: JSON.stringify({ prompt: userText }),
+      });
+      const data = await res.json();
+      return data.reply;
+    }
   }
 
   return (
