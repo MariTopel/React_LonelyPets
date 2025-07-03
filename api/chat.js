@@ -1,34 +1,31 @@
-/* eslint-env node */
 import OpenAI from "openai";
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
-  // CORS preflight
-  if (req.method === "OPTIONS") {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    return res.status(204).end();
-  }
+  // CORS & method checks omitted for brevity…
 
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST,OPTIONS");
-    return res.status(405).end();
+  console.log("🔔 /api/chat invoked");
+  console.log("🔑 OPENAI_API_KEY:", process.env.OPENAI_API_KEY);
+  let prompt;
+  try {
+    ({ prompt } = JSON.parse(req.body));
+    console.log("📨 Received prompt:", prompt);
+  } catch (e) {
+    console.error("❌ Invalid JSON body:", e);
+    return res.status(400).json({ error: "Invalid JSON" });
   }
-
-  res.setHeader("Access-Control-Allow-Origin", "*");
 
   try {
-    const { prompt } = JSON.parse(req.body);
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
     });
-    return res.status(200).json({
-      reply: completion.choices[0].message.content,
-    });
+    const reply = completion.choices[0].message.content;
+    console.log("✅ OpenAI replied:", reply);
+    return res.status(200).json({ reply });
   } catch (err) {
-    console.error("AI error:", err);
+    console.error("🤖 OpenAI error:", err);
     return res.status(500).json({ error: err.message });
   }
 }
