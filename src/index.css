@@ -141,3 +141,49 @@ body {
 #chat-input-area button:hover {
   background-color: #059669;
 }
+
+/* Mobile first: small screens under 480px */
+@media (max-width: 480px) {
+  /* Shrink the app wrapper padding */
+  .app-container {
+    margin: 1rem;
+    padding: 0.5rem;
+  }
+
+  /* Make all cards full-width */
+  .pet-form,
+  .confirmation-view,
+  #chat {
+    padding: 1rem;
+    margin: 0 auto;
+  }
+
+  /* Ensure form inputs & buttons fill the width */
+  .pet-form-select,
+  .pet-form-input,
+  .pet-form-button,
+  #chat-input-area input,
+  #chat-input-area button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Chat messages should wrap and fill container */
+  .chat-bubble {
+    max-width: 100%;
+    word-wrap: break-word;
+  }
+}
+
+/* Tablet / small laptops up to 768px */
+@media (max-width: 768px) {
+  .app-container {
+    max-width: 100%;
+  }
+  #chat-messages {
+    max-height: 200px;
+  }
+  .confirmation-image {
+    width: 120px;
+  }
+}
