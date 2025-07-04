@@ -88,11 +88,10 @@ body {
 }
 
 #chat-messages {
-  max-height: 300px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  overflow-y: auto;
 }
 
 .chat-bubble {
@@ -116,21 +115,23 @@ body {
   border-bottom-left-radius: 0;
 }
 
+/* Chat input wrapper: flex row with a small gap */
 #chat-input-area {
   display: flex;
   gap: 0.5rem;
+  padding: 0.5rem;
 }
 
-/* Let the text field take all the leftover space... */
+/* Let the text field grow to fill remaining space */
 #chat-input-area input {
   flex: 1 1 auto;
-  min-width: 0; /* ensure it can shrink on really small screens */
+  min-width: 0; /* for very small screens */
 }
 
-/* ...and force the button to size itself to its content */
+/* Don’t let the button grow or shrink — keep it its natural size */
 #chat-input-area button {
   flex: 0 0 auto;
-  width: auto;
+  width: auto; /* override any 100% you may have had */
 }
 
 #chat-input-area button:hover {
@@ -159,7 +160,6 @@ body {
   .pet-form-button,
   #chat-input-area input,
   #chat-input-area button {
-    width: 100%;
     box-sizing: border-box;
   }
 
