@@ -46,9 +46,9 @@ export default function ChatView({ user }) {
       text,
       page,
     });
-    setMessages((prev) => [...prev, { who: "You", text }]);
+    setMessages((prev) => [...prev, { role: "user", text }]);
 
-    // Generate and save AI reply
+    // 2) Generate, save & append the assistant's reply
     const reply = await generatePetReply(text, page);
     await supabase.from("chat_messages").insert({
       user_id: user.id,
@@ -56,7 +56,7 @@ export default function ChatView({ user }) {
       text: reply,
       page,
     });
-    setMessages((prev) => [...prev, { who: "Pet", text: reply }]);
+    setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
   }
 
   return (
