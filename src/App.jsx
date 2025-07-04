@@ -62,6 +62,8 @@ export default function App() {
           <>
             <ConfirmationView pet={pet} onReset={resetPet} />
             <ChatView />
+            <ConfirmationView pet={pet} onReset={resetPet} />
+            <ChatView user={session.user} />
           </>
         ) : (
           <PetForm onSave={savePet} />
