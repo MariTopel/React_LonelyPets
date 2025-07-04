@@ -32,3 +32,6 @@ dist-ssr
 .env
 npm-debug.log*
 .DS_Store
+
+#vite supabase and supabase anon key ignore
+.env
