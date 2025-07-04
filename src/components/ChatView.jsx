@@ -1,64 +1,78 @@
-// src/components/ChatView.jsx
+//src/components/ChatView.jsx
 import { useState, useEffect, useRef } from "react";
-import { generatePetReply } from "../utils/generatePetReply.js";
+import { supabase } from "../supabaseClient";
+import { generatePetReply } from "../utils/generatePetReply";
 
 export default function ChatView() {
-  const [messages, setMessages] = useState(
-    () => JSON.parse(localStorage.getItem("chatHistory")) || []
-  );
+  const user = supabase.auth.getUser();
+  const page = window.location.pathname;
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const endRef = useRef();
 
+  // Load history on mount or when page changes
   useEffect(() => {
-    localStorage.setItem("chatHistory", JSON.stringify(messages));
+    (async () => {
+      const { data, error } = await supabase
+        .from("chat_messages")
+        .select("role, text")
+        .eq("user_id", user.id)
+        .eq("page", page)
+        .order("created_at", { ascending: true });
+      if (error) console.error(error);
+      else setMessages(data || []);
+    })();
+  }, [user.id, page]);
+
+  // Scroll to bottom on new messages
+  useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   async function handleSend() {
     const text = input.trim();
     if (!text) return;
-
-    setMessages((prev) => [...prev, { who: "You", text }]);
     setInput("");
 
-    try {
-      const reply = await generatePetReply(text);
-      setMessages((prev) => [...prev, { who: "Pet", text: reply }]);
-    } catch (err) {
-      console.error("🚨 generatePetReply failed:", err);
-      setMessages((prev) => [
-        ...prev,
-        { who: "Pet", text: "😿 Sorry, something went wrong." },
-      ]);
-    }
+    // Save and show user message
+    setMessages((prev) => [...prev, { role: "user", text }]);
+    await supabase.from("chat_messages").insert({
+      user_id: user.id,
+      role: "user",
+      text,
+      page,
+    });
+
+    // Get AI reply
+    const reply = await generatePetReply(text, page);
+
+    // Save and show AI reply
+    setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
+    await supabase.from("chat_messages").insert({
+      user_id: user.id,
+      role: "assistant",
+      text: reply,
+      page,
+    });
   }
 
   return (
-    <section id="chat" className="chat-view">
+    <section id="chat">
       <h2>Chat with your pet</h2>
-
       <div id="chat-messages">
         {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`chat-bubble ${
-              m.who === "You" ? "user-bubble" : "pet-bubble"
-            }`}
-          >
-            <strong>{m.who}:</strong> {m.text}
+          <div key={i} className={`chat-bubble ${m.role}-bubble`}>
+            <strong>{m.role === "user" ? "You" : "Pet"}:</strong> {m.text}
           </div>
         ))}
         <div ref={endRef} />
       </div>
-
       <div id="chat-input-area">
         <input
-          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message…"
         />
-        {/* 4) onClick now calls the async handle */}
         <button onClick={handleSend}>Send</button>
       </div>
     </section>

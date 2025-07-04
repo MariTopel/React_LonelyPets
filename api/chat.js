@@ -17,31 +17,39 @@ export default async function handler(req, res) {
     return res.status(405).end();
   }
 
-  // 3) CORS for real responses
+  // 3) CORS for the real response
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  // 4) Manually collect the body
+  // 4) Manually collect the request body
   let body = "";
   for await (const chunk of req) {
     body += chunk;
   }
 
-  let prompt;
+  // 5) Parse JSON & extract prompt + page
+  let prompt, page;
   try {
-    const data = JSON.parse(body);
-    prompt = data.prompt;
+    ({ prompt, page } = JSON.parse(body));
   } catch (e) {
     console.error("❌ Invalid JSON body:", e);
     return res.status(400).json({ error: "Invalid JSON" });
   }
 
-  console.log("📨 prompt:", prompt);
+  // location aware snippet
+  const system = `User is exploring the ${page.slice(1)} area.`;
+  const messages = [
+    { role: "system", content: system },
+    { role: "user", content: prompt },
+  ];
 
   try {
+    // 6) Call OpenAI with our messages array
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
+      messages,
+      // you can tweak temperature, max_tokens, etc. here
     });
+
     const reply = completion.choices[0].message.content;
     console.log("✅ reply:", reply);
     return res.status(200).json({ reply });

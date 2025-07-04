@@ -35,3 +35,4 @@ npm-debug.log*
 
 #vite supabase and supabase anon key ignore
 .env
+.vercel
