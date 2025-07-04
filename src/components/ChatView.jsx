@@ -1,60 +1,71 @@
-//src/components/ChatView.jsx
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../supabaseClient";
 import { generatePetReply } from "../utils/generatePetReply";
 
-export default function ChatView({ user }) {
-  const page = window.location.pathname;
+export default function ChatView({ user, page: pageProp }) {
+  // If no user, render nothing
+  if (!user) return null;
+
+  // Derive the page key: use the prop if passed in, otherwise use the URL
+  const currentPage = pageProp || window.location.pathname;
+
+  // Local state for chat messages & input box
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const endRef = useRef();
 
-  // if no user, render nothing (or show a “please log in” message)
-  if (!user) return null;
-
-  // Don’t attempt DB calls until user is ready
+  // Load existing messages from Supabase whenever the user or page changes
   useEffect(() => {
     if (!user?.id) return;
+
     (async () => {
-      console.log("🔍 Loading for", user.id, "page", page);
+      console.log("🔍 Loading chat for", user.id, "on", currentPage);
       const { data, error } = await supabase
         .from("chat_messages")
         .select("role, text")
         .eq("user_id", user.id)
-        .eq("page", page)
+        .eq("page", currentPage)
         .order("created_at", { ascending: true });
-      console.log("🔗 load result:", { data, error });
-      if (error) return console.error("Load error:", error);
-      setMessages(data || []);
-    })();
-  }, [user?.id, page]);
 
+      if (error) {
+        console.error("Load error:", error);
+      } else {
+        setMessages(data || []);
+      }
+    })();
+  }, [user?.id, currentPage]);
+
+  // Auto-scroll to bottom on new messages
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Handler for Send button
   async function handleSend() {
     if (!user?.id) return;
     const text = input.trim();
     if (!text) return;
+
     setInput("");
 
-    // Save user message
+    // 1) Persist user message
     await supabase.from("chat_messages").insert({
       user_id: user.id,
       role: "user",
       text,
-      page,
+      page: currentPage,
     });
     setMessages((prev) => [...prev, { role: "user", text }]);
 
-    // 2) Generate, save & append the assistant's reply
-    const reply = await generatePetReply(text, page);
+    // 2) Generate pet reply
+    const reply = await generatePetReply(text, currentPage);
+
+    // 3) Persist assistant reply
     await supabase.from("chat_messages").insert({
       user_id: user.id,
       role: "assistant",
       text: reply,
-      page,
+      page: currentPage,
     });
     setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
   }
@@ -62,6 +73,7 @@ export default function ChatView({ user }) {
   return (
     <section id="chat">
       <h2>Chat with your pet</h2>
+
       <div id="chat-messages">
         {messages.map((m, i) => (
           <div key={i} className={`chat-bubble ${m.role}-bubble`}>
@@ -70,6 +82,7 @@ export default function ChatView({ user }) {
         ))}
         <div ref={endRef} />
       </div>
+
       <div id="chat-input-area">
         <input
           value={input}
