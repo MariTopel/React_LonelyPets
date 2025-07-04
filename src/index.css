@@ -121,21 +121,16 @@ body {
   gap: 0.5rem;
 }
 
+/* Let the text field take all the leftover space... */
 #chat-input-area input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 1rem;
+  flex: 1 1 auto;
+  min-width: 0; /* ensure it can shrink on really small screens */
 }
 
+/* ...and force the button to size itself to its content */
 #chat-input-area button {
-  padding: 0.5rem 1rem;
-  background-color: #10b981;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  flex: 0 0 auto;
+  width: auto;
 }
 
 #chat-input-area button:hover {
