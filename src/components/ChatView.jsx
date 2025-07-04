@@ -9,6 +9,9 @@ export default function ChatView({ user }) {
   const [input, setInput] = useState("");
   const endRef = useRef();
 
+  // if no user, render nothing (or show a “please log in” message)
+  if (!user) return null;
+
   // Don’t attempt DB calls until user is ready
   useEffect(() => {
     if (!user?.id) return;

@@ -50,12 +50,19 @@ export default function App() {
           path="/"
           element={
             <div className="app-container">
-              <div className="panel pet-panel">
-                <ConfirmationView pet={pet} onReset={resetPet} />
-              </div>
-              <div className="panel chat-panel">
-                <ChatView user={session.user} />
-              </div>
+              {pet ? (
+                <>
+                  <ConfirmationView pet={pet} onReset={resetPet} />
+
+                  {/* Only render ChatView once session.user exists */}
+                  {session?.user && <ChatView user={session.user} />}
+
+                  {/* Alternatively, always render but let ChatView guard itself:
+            <ChatView user={session?.user} /> */}
+                </>
+              ) : (
+                <PetForm onSave={savePet} />
+              )}
             </div>
           }
         />
