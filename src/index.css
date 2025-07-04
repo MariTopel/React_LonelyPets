@@ -1,213 +1,202 @@
-/* src/index.css */
-
-/* ---- Layout & typography ---- */
-body {
+/* 1. RESET & VARIABLES */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: system-ui, sans-serif;
-  background-color: #f9fafb;
-  color: #111827;
 }
 
+:root {
+  /* colors */
+  --color-bg: #f9fafb;
+  --color-text: #111827;
+  --color-primary: #4f46e5;
+  --color-secondary: #6b7280;
+  --color-user: #e0f2fe;
+  --color-pet: #d1fae5;
+  --color-border: #d1d5db;
+
+  /* sizing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space: 1rem;
+  --space-lg: 2rem;
+  --radius: 0.5rem;
+
+  /* fonts */
+  --font-base: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  font-family: var(--font-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+/* 2. HEADER */
+header {
+  background: white;
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space);
+  display: flex;
+  justify-content: flex-end;
+}
+header button {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: var(--space-sm) var(--space);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+}
+header button:hover {
+  background: var(--color-primary-hover, #4338ca);
+}
+
+/* 3. MAIN APP CONTAINER */
 .app-container {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-/* ---- PetForm ---- */
-#pet-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-#pet-form label {
+/* 4. PET FORM */
+.pet-form {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-lg);
+  display: grid;
+  gap: var(--space);
+}
+.pet-form label {
+  font-weight: 500;
+  color: var(--color-secondary);
+}
+.pet-form select,
+.pet-form input {
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  width: 100%;
+}
+.pet-form button {
+  justify-self: start;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: var(--space-sm) var(--space);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+/* 5. CONFIRMATION VIEW */
+.confirmation-view {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-lg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space);
+}
+.confirmation-image {
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+}
+.confirmation-summary {
+  font-size: 1.25rem;
   font-weight: 600;
 }
-
-#pet-form select,
-#pet-form input {
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-#pet-form button {
-  padding: 0.75rem;
-  background-color: #4f46e5;
+.confirmation-button {
+  background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius);
   cursor: pointer;
 }
 
-#pet-form button:hover {
-  background-color: #4338ca;
-}
-
-/* ---- ConfirmationView ---- */
-#confirmation {
-  text-align: center;
-}
-
-#confirmation img {
-  border-radius: 50%;
-  border: 2px solid #e5e7eb;
-}
-
-#confirmation button {
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background-color: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-#confirmation button:hover {
-  background-color: #dc2626;
-}
-
-/* ---- ChatView ---- */
-#chat {
+/* 6. CHAT VIEW */
+.chat-view {
   background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  overflow: hidden;
 }
-
+.chat-view h2 {
+  background: var(--color-bg);
+  padding: var(--space-sm) var(--space);
+  border-bottom: 1px solid var(--color-border);
+}
 #chat-messages {
-  max-height: 300px;
+  flex: 1 1 auto;
+  padding: var(--space);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-sm);
 }
-
 .chat-bubble {
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
   max-width: 80%;
+  padding: var(--space-sm) var(--space);
+  border-radius: var(--radius);
   line-height: 1.4;
 }
-
 .user-bubble {
+  background: var(--color-user);
   align-self: flex-end;
-  background-color: #4f46e5;
-  color: white;
-  border-bottom-right-radius: 0;
 }
-
 .pet-bubble {
+  background: var(--color-pet);
   align-self: flex-start;
-  background-color: #e5e7eb;
-  color: #111827;
-  border-bottom-left-radius: 0;
 }
-
 #chat-input-area {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-sm);
+  padding: var(--space);
+  border-top: 1px solid var(--color-border);
 }
-
 #chat-input-area input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 1rem;
+  flex: 1 1 auto;
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
 }
-
 #chat-input-area button {
-  padding: 0.5rem 1rem;
-  background-color: #10b981;
+  background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 6px;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius);
   cursor: pointer;
 }
 
-#chat-input-area button:hover {
-  background-color: #059669;
-}
-
-/* Mobile first: small screens under 480px */
-@media (max-width: 480px) {
-  /* Shrink the app wrapper padding */
+/* 7. MOBILE FIRST RESPONSIVENESS */
+@media (min-width: 600px) {
   .app-container {
-    margin: 1rem;
-    padding: 0.5rem;
+    flex-direction: row;
   }
-
-  /* Make all cards full-width */
+  .app-container > * {
+    flex: 1 1 0;
+  }
   .pet-form,
-  .confirmation-view,
-  #chat {
-    padding: 1rem;
-    margin: 0 auto;
+  .confirmation-view {
+    max-width: 350px;
   }
-
-  /* Ensure form inputs & buttons fill the width */
-  .pet-form-select,
-  .pet-form-input,
-  .pet-form-button,
-  #chat-input-area input,
-  #chat-input-area button {
-    width: 100%;
-    box-sizing: border-box;
+  .chat-view {
+    max-width: 500px;
+    margin-left: var(--space-lg);
   }
-
-  /* Chat messages should wrap and fill container */
-  .chat-bubble {
-    max-width: 100%;
-    word-wrap: break-word;
-  }
-}
-
-/* Tablet / small laptops up to 768px */
-@media (max-width: 768px) {
-  .app-container {
-    max-width: 100%;
-  }
-  #chat-messages {
-    max-height: 200px;
-  }
-  .confirmation-image {
-    width: 120px;
-  }
-}
-
-.auth-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.auth-form {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 300px;
-}
-.auth-form .error {
-  color: red;
-  margin-bottom: 1rem;
 }
