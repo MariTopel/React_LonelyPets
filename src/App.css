@@ -58,3 +58,27 @@
   padding: 2rem;
   border-radius: 8px;
 }
+
+.app-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* both panels will grow but not exceed their max-width */
+.panel {
+  flex: 1 1 300px;
+  max-width: 500px;
+}
+
+/* if you want the pet panel narrower, you can override: */
+.pet-panel {
+  max-width: 350px;
+}
+
+/* and let the chat fill the rest up to its max-width */
+.chat-panel {
+  max-width: 600px;
+}
