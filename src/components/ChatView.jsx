@@ -13,12 +13,19 @@ export default function ChatView() {
   // Load history on mount or when page changes
   useEffect(() => {
     (async () => {
+      +console.log(
+        "🔍 ChatView loading messages for",
+        user.id,
+        "on page",
+        page
+      );
       const { data, error } = await supabase
         .from("chat_messages")
         .select("role, text")
         .eq("user_id", user.id)
         .eq("page", page)
         .order("created_at", { ascending: true });
+      +console.log("🔗 load result:", { data, error });
       if (error) console.error(error);
       else setMessages(data || []);
     })();
@@ -33,7 +40,7 @@ export default function ChatView() {
     const text = input.trim();
     if (!text) return;
     setInput("");
-
+    +console.log("✏️  Sending user message:", text, "for", user.id);
     // Save and show user message
     setMessages((prev) => [...prev, { role: "user", text }]);
     await supabase.from("chat_messages").insert({
@@ -42,10 +49,10 @@ export default function ChatView() {
       text,
       page,
     });
-
+    +console.log("   → insert user error:", insertErr);
     // Get AI reply
     const reply = await generatePetReply(text, page);
-
+    +console.log("🤖 AI replied:", reply);
     // Save and show AI reply
     setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
     await supabase.from("chat_messages").insert({
@@ -54,6 +61,7 @@ export default function ChatView() {
       text: reply,
       page,
     });
+    +console.log("   → insert ai error:", insertErr2);
   }
 
   return (
