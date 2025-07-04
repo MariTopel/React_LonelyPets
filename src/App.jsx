@@ -37,8 +37,11 @@ export default function App() {
 
   return (
     <>
-      <Header />
-
+      <Header
+        session={session}
+        onLogin={() => setShowLogin(true)}
+        onLogout={() => supabase.auth.signOut()}
+      />
       {/* optional login overlay */}
       {showLogin && !session && (
         <AuthForm onSuccess={() => setShowLogin(false)} />
