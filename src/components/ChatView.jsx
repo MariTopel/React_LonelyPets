@@ -46,7 +46,7 @@ export default function ChatView({ user }) {
       text,
       page,
     });
-    setMessages((prev) => [...prev, { role: "user", text }]);
+    setMessages((prev) => [...prev, { who: "You", text }]);
 
     // Generate and save AI reply
     const reply = await generatePetReply(text, page);
@@ -56,7 +56,7 @@ export default function ChatView({ user }) {
       text: reply,
       page,
     });
-    setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
+    setMessages((prev) => [...prev, { who: "Pet", text: reply }]);
   }
 
   return (
@@ -64,13 +64,8 @@ export default function ChatView({ user }) {
       <h2>Chat with your pet</h2>
       <div id="chat-messages">
         {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`chat-bubble ${
-              m.who === "You" ? "user-bubble" : "pet-bubble"
-            }`}
-          >
-            <strong>{m.who}:</strong> {m.text}
+          <div key={i} className={`chat-bubble ${m.role}-bubble`}>
+            <strong>{m.role === "user" ? "You" : "Pet"}:</strong> {m.text}
           </div>
         ))}
         <div ref={endRef} />
