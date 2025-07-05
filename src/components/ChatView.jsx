@@ -98,3 +98,5 @@ export default function ChatView({ user, page: pageProp }) {
     </section>
   );
 }
+
+console.log("History fetched:", history);

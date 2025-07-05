@@ -40,7 +40,7 @@ export default async function handler(req, res) {
     .eq("user_id", userId)
     .eq("page", page)
     .order("created_at", { ascending: true })
-    .limit(10);
+    .limit(50);
 
   if (histErr) {
     console.error("History fetch error:", histErr);
