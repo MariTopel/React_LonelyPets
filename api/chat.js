@@ -21,13 +21,8 @@ export default async function handler(req, res) {
     return res.status(405).end("Method Not Allowed");
   }
 
-  let body;
-  try {
-    body = JSON.parse(req.body);
-  } catch (e) {
-    return res.status(400).json({ error: "Invalid JSON" });
-  }
-  const { prompt, page, userId } = body;
+  // Vercel auto-parses JSON bodies for you, so req.body is already an object
+  const { prompt, page, userId } = req.body || {};
   if (!prompt || !page || !userId) {
     return res.status(400).json({ error: "Missing prompt, page, or userId" });
   }
