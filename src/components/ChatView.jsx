@@ -1,3 +1,4 @@
+//src/components/ChatView.jsx
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../supabaseClient";
 import { generatePetReply } from "../utils/generatePetReply";
@@ -41,14 +42,16 @@ export default function ChatView({ user, page: pageProp }) {
   }, [messages]);
 
   // Handler for Send button
+  // Handler for Send button
   async function handleSend() {
     if (!user?.id) return;
     const text = input.trim();
     if (!text) return;
 
+    // 1) Optimistically clear the input
     setInput("");
 
-    // 1) Persist user message
+    // 2) Persist the user’s message
     await supabase.from("chat_messages").insert({
       user_id: user.id,
       role: "user",
@@ -57,17 +60,18 @@ export default function ChatView({ user, page: pageProp }) {
     });
     setMessages((prev) => [...prev, { role: "user", text }]);
 
-    // 2) Generate pet reply
-    const reply = await generatePetReply(text, currentPage);
+    // 3) Generate the AI reply (with full context)
+    //    Pass in prompt, page, and userId
+    const aiReply = await generatePetReply(text, currentPage, user.id);
 
-    // 3) Persist assistant reply
+    // 4) Persist the assistant’s reply
     await supabase.from("chat_messages").insert({
       user_id: user.id,
       role: "assistant",
-      text: reply,
+      text: aiReply,
       page: currentPage,
     });
-    setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
+    setMessages((prev) => [...prev, { role: "assistant", text: aiReply }]);
   }
 
   return (
