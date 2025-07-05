@@ -27,6 +27,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing prompt, page, or userId" });
   }
 
+  // 1) fetch history for this user & page
+  // 2) build messages array (system + past turns + {role:user,content:prompt})
+  // 3) call OpenAI and get reply
+  // 4) insert assistant’s reply into `chat_messages(user_id, role, text, page)`
+  // 5) return res.status(200).json({ reply });
+
   // 1) Fetch the last N messages (e.g. 10) for this user & page
   const { data: history, error: histErr } = await supabase
     .from("chat_messages")
