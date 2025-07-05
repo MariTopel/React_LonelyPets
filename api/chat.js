@@ -2,18 +2,19 @@
 import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
 
+// A short system prompt to anchor personality
+const SYSTEM_PROMPT = `
+You are a friendly virtual pet.  
+You always remember any personal details your human shares—like their name—and use them when you reply.  
+Keep replies short, cheerful, and on topic.
+`.trim();
+
 // Init Supabase and OpenAI using env vars
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.VITE_SUPABASE_ANON_KEY
 );
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-// A short system prompt to anchor personality
-const SYSTEM_PROMPT = `
-You are a friendly virtual pet. Respond cheerfully and stay on topic.
-Keep replies brief (1–2 sentences).
-`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -40,10 +41,11 @@ export default async function handler(req, res) {
     .eq("user_id", userId)
     .eq("page", page)
     .order("created_at", { ascending: true })
-    .limit(50);
+    .limit(20);
 
   if (histErr) {
     console.error("History fetch error:", histErr);
+    console.log("🕵️ History for", userId, page, history);
     // we can still proceed with an empty history
   }
 
