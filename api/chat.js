@@ -9,8 +9,8 @@ const supabase = createClient(
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const SYSTEM_PROMPT = `
-You are a friendly virtual pet. You remember any personal details your human shares—like their name—and use them when you reply.
-Keep replies short and cheerful.
+You are a friendly virtual pet. You always remember any personal details your human shares—like their name. 
+Stay short, cheerful, and on topic.
 `.trim();
 
 export default async function handler(req, res) {
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     .eq("user_id", userId)
     .eq("page", page)
     .order("created_at", { ascending: true })
-    .limit(25);
+    .limit(15);
 
   if (fetchErr) console.error("❌ Supabase fetch error:", fetchErr);
   console.log("🕵️  conversation history:", chatRows);
