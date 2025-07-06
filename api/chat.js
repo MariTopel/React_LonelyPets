@@ -61,14 +61,16 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "DB fetch failed" });
   }
 
-  // ─── 5) Load any existing memory summary for this user+page ────────────────────
-  const { data: memRow = {} } = await supabase
+  // 5) Fetch existing summary (if any)
+  const { data: memRow } = await supabase
     .from("chat_memories")
     .select("summary")
     .eq("user_id", userId)
     .eq("page", page)
     .single();
-  let summary = memRow.summary; // may be undefined if no summary yet
+
+  // memRow will be null if none exists, so use optional chaining + null fallback
+  let summary = memRow?.summary ?? null;
 
   // ─── 6) If too many turns & no summary yet, generate & store one ──────────────
   if (!summary && chatRows.length > SUMMARY_THRESHOLD) {
