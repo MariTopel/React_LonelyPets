@@ -27,34 +27,28 @@ export default async function handler(req, res) {
     return res.status(405).end("Method Not Allowed");
   }
 
-  // ─── 1) Extract & validate Supabase JWT from the Authorization header ─────────
+  // 1) Extract & validate Supabase JWT from the Authorization header ─────────
   const authHeader = req.headers.authorization || "";
   const token = authHeader.split(" ")[1];
   if (!token) {
     return res.status(401).json({ error: "Missing Supabase JWT" });
   }
 
-  // ─── 2) Create a Supabase client that uses the user’s JWT for RLS ─────────────
+  // 2) Create a Supabase client that uses the user’s JWT for RLS ─────────────
   // This ensures all DB calls respect Row­Level Security for that user
   const supabase = createClient(SUPA_URL, SUPA_ANON, {
     global: { headers: { Authorization: `Bearer ${token}` } },
   });
 
-  // ─── 3) Parse & validate request body ────────────────────────────────────────
-  let payload;
-  try {
-    payload = JSON.parse(req.body);
-  } catch {
-    return res.status(400).json({ error: "Invalid JSON" });
-  }
-  const { prompt, page, userId } = payload;
+  // 3) Grab our payload directly (Vercel already parsed it for us)
+  const { prompt, page, userId } = req.body || {};
   if (!prompt || !page || !userId) {
     return res
       .status(400)
       .json({ error: "Missing one of: prompt, page, userId" });
   }
 
-  // ─── 4) Load full chat history (oldest → newest) for this user+page ─────────
+  // 4) Load full chat history (oldest → newest) for this user+page ─────────
   const { data: chatRows = [], error: fetchErr } = await supabase
     .from("chat_messages")
     .select("role, text, created_at")
