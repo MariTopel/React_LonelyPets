@@ -3,7 +3,7 @@
 import { createClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
 
-// ─── Environment Variables ────────────────────────────────────────────────────
+// ─── Environment Variables
 // URL of your Supabase project
 const SUPA_URL = process.env.VITE_SUPABASE_URL;
 // Public (anon) key to initialize Supabase client (we’ll override with JWT below)
@@ -11,7 +11,7 @@ const SUPA_ANON = process.env.VITE_SUPABASE_ANON_KEY;
 // Your OpenAI secret key, used only on the server
 const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
-// ─── Chat‐Memory Parameters ────────────────────────────────────────────────────
+// ─── Chat‐Memory Parameters
 // After this many raw turns, we’ll summarize older ones
 const SUMMARY_THRESHOLD = 20;
 // Keep this many of the most recent turns for direct context
@@ -32,6 +32,21 @@ export default async function handler(req, res) {
   const token = authHeader.split(" ")[1];
   if (!token) {
     return res.status(401).json({ error: "Missing Supabase JWT" });
+  }
+
+  // every chat pet sees personal details first and can weave them into replies
+  const { data: prof } = await supabase
+    .from("profiles")
+    .select("full_name, favorite_color, bio")
+    .eq("user_id", userId)
+    .single();
+
+  if (prof) {
+    const profileMsg =
+      `User name: ${prof.full_name || "N/A"}. ` +
+      `Favorite color: ${prof.favorite_color || "N/A"}. ` +
+      (prof.bio ? `Bio: ${prof.bio}` : "");
+    messages.unshift({ role: "system", content: profileMsg });
   }
 
   // 2) Create a Supabase client that uses the user’s JWT for RLS ─────────────

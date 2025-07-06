@@ -12,6 +12,7 @@ import ConfirmationView from "./components/ConfirmationView";
 import ChatView from "./components/ChatView";
 import MapsLayout from "./components/MapsLayout";
 import MapPage from "./components/MapPage";
+import ProfileForm from "./components/ProfileForm";
 
 export default function App() {
   // --- State hooks ---
@@ -94,6 +95,25 @@ export default function App() {
               ) : (
                 /* Show pet-selection form if no pet chosen */
                 <PetForm onSave={savePet} />
+              )}
+            </div>
+          }
+        />
+
+        {/* Profile editing page */}
+        <Route
+          path="/profile"
+          element={
+            <div className="app-container">
+              {/* Only show profile form if logged in */}
+              {session?.user ? (
+                <ProfileForm
+                  onSaved={() => {
+                    /* optional: redirect or show toast */
+                  }}
+                />
+              ) : (
+                <p>Please log in to edit your profile.</p>
               )}
             </div>
           }
