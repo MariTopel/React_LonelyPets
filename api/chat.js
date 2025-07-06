@@ -36,6 +36,8 @@ export default async function handler(req, res) {
     .order("created_at", { ascending: true })
     .limit(15);
 
+  console.log("🕵️ fetched chatRows:", chatRows);
+
   if (fetchErr) console.error("❌ Supabase fetch error:", fetchErr);
   console.log("🕵️  conversation history:", chatRows);
 
@@ -49,6 +51,17 @@ export default async function handler(req, res) {
     { role: "user", content: prompt },
   ];
 
+  const messages = [
+    { role: "system", content: SYSTEM_PROMPT },
+    ...chatRows.map((r) => ({ role: r.role, content: r.text })),
+    { role: "user", content: prompt },
+  ];
+  console.log("🕵️ final OpenAI messages:", messages);
+
+  const completion = await openai.chat.completions.create({
+    model: "...",
+    messages,
+  });
   try {
     // 3) Call OpenAI with full context
     const completion = await openai.chat.completions.create({
