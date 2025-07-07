@@ -66,33 +66,41 @@ export default function App() {
   // --- Handlers for pet creation & reset and save data to supabase ---
   async function savePet(data) {
     const userId = session?.user?.id;
-    if (!userId) return;
+    const token = session?.access_token; // 👈 pull token directly from session
 
-    console.log("🐾 userId from session:", session?.user?.id);
-    console.log(
-      "🐾 auth.uid() (expected value): will match this in RLS policy"
-    );
-
-    // Save to Supabase
-    const { data: insertedPet, error } = await supabase
-      .from("pets")
-      .insert([
-        {
-          user_id: userId,
-          name: data.name,
-          type: data.type,
-          personality: data.personality,
-        },
-      ])
-      .select()
-      .single(); // get the newly created row back
-
-    if (error) {
-      console.error("Supabase insert error:", error);
+    if (!userId || !token) {
+      console.error("User not authenticated");
       return;
     }
 
-    // Save to state & localStorage
+    const customClient = supabase.withHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const newPet = {
+      user_id: userId,
+      name: data.name,
+      type: data.type,
+      personality: data.personality,
+    };
+
+    console.log("🐾 Inserting pet as user:", userId);
+
+    const { data: insertedPet, error } = await customClient
+      .from("pets")
+      .insert([newPet])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("❌ Supabase insert error:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+      return;
+    }
+
     setPet(insertedPet);
     localStorage.setItem("myPet", JSON.stringify(insertedPet));
   }
