@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { supabase } from "./supabaseClient";
-import { createClient } from "@supabase/supabase-js";
 
 // UI Components
 import Header from "./components/Header";
@@ -74,18 +73,7 @@ export default function App() {
       return;
     }
 
-    const customClient = createClient(
-      import.meta.env.VITE_SUPABASE_URL,
-      import.meta.env.VITE_SUPABASE_ANON_KEY,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      }
-    );
-
+    // Create newPet object
     const newPet = {
       user_id: userId,
       name: data.name,
@@ -95,7 +83,7 @@ export default function App() {
 
     console.log("🐾 Inserting pet as:", newPet);
 
-    const { data: insertedPet, error } = await customClient
+    const { data: insertedPet, error } = await supabase
       .from("pets")
       .insert([newPet])
       .select()
