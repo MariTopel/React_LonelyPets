@@ -105,11 +105,11 @@ export default function App() {
           path="/profile"
           element={
             <div className="app-container">
-              {/* Only show profile form if logged in */}
               {session?.user ? (
                 <ProfileForm
+                  user={session.user}
                   onSaved={() => {
-                    /* optional: redirect or show toast */
+                    /* e.g. navigate("/") or close a modal */
                   }}
                 />
               ) : (
