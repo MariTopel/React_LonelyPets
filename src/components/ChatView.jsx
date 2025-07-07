@@ -7,6 +7,11 @@ export default function ChatView({ user, page: pageProp }) {
   // If no user, render nothing
   if (!user) return null;
 
+  //states
+
+  const [animateUser, setAnimateUser] = useState(false);
+  const [lastUserMessage, setLastUserMessage] = useState(null);
+
   // Derive the page key: use the prop if passed in, otherwise use the URL
   const currentPage = pageProp || window.location.pathname;
 
@@ -58,10 +63,18 @@ export default function ChatView({ user, page: pageProp }) {
       text,
       page: currentPage,
     });
+    const newMessage = { role: "user", text };
     setMessages((prev) => {
-      const next = [...prev, { role: "user", text }];
+      const next = [...prev, newMessage];
       return next.slice(-50);
     });
+    setLastUserMessage(newMessage);
+    setAnimateUser(true);
+
+    setTimeout(() => {
+      setAnimateUser(false);
+      setLastUserMessage(null);
+    }, 300); // Adjust timing to match your animation
 
     // 3) Generate the AI reply (with full context)
     //    Pass in prompt, page, and userId
@@ -85,11 +98,30 @@ export default function ChatView({ user, page: pageProp }) {
       <h2>Chat with your pet</h2>
 
       <div id="chat-messages">
-        {messages.map((m, i) => (
-          <div key={i} className={`chat-bubble ${m.role}-bubble`}>
-            <strong>{m.role === "user" ? "You" : "Pet"}:</strong> {m.text}
-          </div>
-        ))}
+        {messages.map((m, i) => {
+          const isUser = m.role === "user";
+          const isPet = m.role === "assistant";
+
+          const isLatestUser = isUser && animateUser && m === lastUserMessage;
+          const isLatestPet = isPet && i === messages.length - 1;
+
+          const extraClass = isLatestUser
+            ? "user-fade-in"
+            : isLatestPet
+            ? "fade-in"
+            : "";
+
+          const key = `${m.role}-${i}-${m.text.slice(0, 10)}`;
+
+          return (
+            <div
+              key={key}
+              className={`chat-bubble ${m.role}-bubble ${extraClass}`}
+            >
+              <strong>{isUser ? "You" : "Pet"}:</strong> {m.text}
+            </div>
+          );
+        })}
         <div ref={endRef} />
       </div>
 

@@ -2,11 +2,16 @@
 
 /* ---- Layout & typography ---- */
 body {
+  background-image: url("/images/parchment.png");
+  background-size: cover; /* or try 'contain' or '100% 100%' for a different fit */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+
+  font-family: "Cormorant Garamond", serif;
+  color: #3e2f1c; /* warm brown text for readability */
   margin: 0;
   padding: 0;
-  font-family: system-ui, sans-serif;
-  background-color: #f9fafb;
-  color: #111827;
 }
 
 .app-container {
@@ -100,22 +105,35 @@ body {
   border-radius: 12px;
   max-width: 80%;
   line-height: 1.4;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  background-image: url("/images/parchment.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  border: 1px solid #d6b874;
 }
 
 .user-bubble {
   align-self: flex-end;
-  background-color: #4f46e5;
-  color: white;
+  background-color: rgba(79, 70, 229, 0.9);
+  color: #ffffff;
+  font-weight: 700;
+  opacity: 1;
   border-bottom-right-radius: 0;
 }
 
 .pet-bubble {
   align-self: flex-start;
-  background-color: #e5e7eb;
-  color: #111827;
+  background-color: rgba(250, 245, 230, 0.85);
+  color: #3e2f1c;
+  font-style: italic;
+  font-weight: 300;
+  font-family: "Cormorant Garamond", serif;
   border-bottom-left-radius: 0;
-}
 
+  animation: whisperIn 0.8s ease-out;
+}
 /* Chat input wrapper: flex row with a small gap */
 #chat-input-area {
   display: flex;
@@ -233,12 +251,6 @@ body {
   text-decoration: underline;
 }
 
-/* basic body reset */
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-}
-
 .site-header {
   display: flex;
   align-items: center;
@@ -256,4 +268,53 @@ body {
 }
 .auth-buttons button:hover {
   background: #eef2ff;
+}
+
+@keyframes whisperIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.fade-in {
+  animation: whisperIn 0.8s ease-out;
+}
+
+@keyframes userMessageIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.user-fade-in {
+  animation: userMessageIn 0.4s ease-out;
+}
+
+@keyframes whisperIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.fade-in {
+  animation: whisperIn 0.8s ease-out;
 }
