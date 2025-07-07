@@ -228,26 +228,36 @@ body {
 
 /* header/nav */
 .site-header {
-  background: #4f46e5;
-  color: white;
+  background: linear-gradient(to bottom, #f6f1e1, #e3d6b1);
+  border-bottom: 2px solid #b49b6e;
+  color: #3e2f1c;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.25rem;
+  padding: 1rem 2rem;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 1rem;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .site-header .logo a {
   text-decoration: none;
-  color: white;
-  font-size: 1.25rem;
+  color: #3e2f1c;
   font-weight: bold;
+  font-size: 1.75rem;
+  letter-spacing: 1px;
 }
+
 .site-nav a {
-  margin-left: 1rem;
   text-decoration: none;
-  color: white;
+  margin-left: 1rem;
+  color: #5b4329;
   font-weight: 500;
+  transition: color 0.3s;
 }
+
 .site-nav a:hover {
+  color: #7c5e3b;
   text-decoration: underline;
 }
 
