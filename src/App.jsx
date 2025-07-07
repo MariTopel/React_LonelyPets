@@ -68,6 +68,11 @@ export default function App() {
     const userId = session?.user?.id;
     if (!userId) return;
 
+    console.log("🐾 userId from session:", session?.user?.id);
+    console.log(
+      "🐾 auth.uid() (expected value): will match this in RLS policy"
+    );
+
     // Save to Supabase
     const { data: insertedPet, error } = await supabase
       .from("pets")
