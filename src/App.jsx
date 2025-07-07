@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { supabase } from "./supabaseClient";
+import { createClient } from "@supabase/supabase-js";
 
 // UI Components
 import Header from "./components/Header";
@@ -66,14 +67,12 @@ export default function App() {
   // --- Handlers for pet creation & reset and save data to supabase ---
   async function savePet(data) {
     const userId = session?.user?.id;
-    const token = session?.access_token; // 👈 pull token directly from session
+    const token = session?.access_token;
 
     if (!userId || !token) {
       console.error("User not authenticated");
       return;
     }
-
-    import { createClient } from "@supabase/supabase-js";
 
     const customClient = createClient(
       import.meta.env.VITE_SUPABASE_URL,
@@ -86,6 +85,7 @@ export default function App() {
         },
       }
     );
+
     const newPet = {
       user_id: userId,
       name: data.name,
@@ -93,7 +93,7 @@ export default function App() {
       personality: data.personality,
     };
 
-    console.log("🐾 Inserting pet as user:", userId);
+    console.log("🐾 Inserting pet as:", newPet);
 
     const { data: insertedPet, error } = await customClient
       .from("pets")
