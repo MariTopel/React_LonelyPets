@@ -58,7 +58,10 @@ export default function ChatView({ user, page: pageProp }) {
       text,
       page: currentPage,
     });
-    setMessages((prev) => [...prev, { role: "user", text }]);
+    setMessages((prev) => {
+      const next = [...prev, { role: "user", text }];
+      return next.slice(-50);
+    });
 
     // 3) Generate the AI reply (with full context)
     //    Pass in prompt, page, and userId
@@ -71,7 +74,10 @@ export default function ChatView({ user, page: pageProp }) {
       text: aiReply,
       page: currentPage,
     });
-    setMessages((prev) => [...prev, { role: "assistant", text: aiReply }]);
+    setMessages((prev) => {
+      const next = [...prev, { role: "assistant", text: aiReply }];
+      return next.slice(-50);
+    });
   }
 
   return (
