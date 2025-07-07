@@ -136,7 +136,7 @@ and reply in short, cheerful sentences.
   let reply;
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o-mini",
       messages,
     });
     reply = completion.choices[0].message.content.trim();
