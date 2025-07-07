@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "../supabaseClient";
 import { generatePetReply } from "../utils/generatePetReply";
 
-export default function ChatView({ user, page: pageProp }) {
+export default function ChatView({ user, pet, page: pageProp }) {
   // If no user, render nothing
   if (!user) return null;
 
@@ -78,7 +78,7 @@ export default function ChatView({ user, page: pageProp }) {
 
     // 3) Generate the AI reply (with full context)
     //    Pass in prompt, page, and userId
-    const aiReply = await generatePetReply(text, currentPage, user.id);
+    const aiReply = await generatePetReply(text, currentPage, user.id, pet);
 
     // 4) Persist the assistant’s reply
     await supabase.from("chat_messages").insert({

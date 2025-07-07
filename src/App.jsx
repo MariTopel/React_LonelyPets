@@ -25,42 +25,82 @@ export default function App() {
 
   // --- Effect: run once on component mount ---
   useEffect(() => {
-    // 1) Load pet from localStorage (if the user has already chosen one)
     const stored = localStorage.getItem("myPet");
     if (stored) {
       setPet(JSON.parse(stored));
     }
 
-    // 2) Fetch the current Supabase session (if the user is already logged in)
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    supabase.auth.getSession().then(async ({ data }) => {
+      const userSession = data.session;
+      setSession(userSession);
+
+      if (userSession?.user?.id) {
+        // 🔍 Load most recent pet from Supabase
+        const { data: pets, error } = await supabase
+          .from("pets")
+          .select("*")
+          .eq("user_id", userSession.user.id)
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (error) {
+          console.error("Failed to load pet from Supabase:", error);
+        } else if (pets.length > 0) {
+          setPet(pets[0]);
+          localStorage.setItem("myPet", JSON.stringify(pets[0]));
+        }
+      }
     });
 
-    // 3) Subscribe to auth state changes (login/logout)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_, newSession) => {
       setSession(newSession);
     });
 
-    // Cleanup subscription when component unmounts
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
-  // --- Handlers for pet creation & reset ---
-  function savePet(data) {
-    // Update state and persist to localStorage
-    setPet(data);
-    localStorage.setItem("myPet", JSON.stringify(data));
+  // --- Handlers for pet creation & reset and save data to supabase ---
+  async function savePet(data) {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    // Save to Supabase
+    const { data: insertedPet, error } = await supabase
+      .from("pets")
+      .insert([
+        {
+          user_id: userId,
+          name: data.name,
+          type: data.type,
+          personality: data.personality,
+        },
+      ])
+      .select()
+      .single(); // get the newly created row back
+
+    if (error) {
+      console.error("Supabase insert error:", error);
+      return;
+    }
+
+    // Save to state & localStorage
+    setPet(insertedPet);
+    localStorage.setItem("myPet", JSON.stringify(insertedPet));
   }
 
-  function resetPet() {
-    // Clear state and remove stored data
+  async function resetPet() {
     setPet(null);
     localStorage.removeItem("myPet");
     localStorage.removeItem("chatHistory");
+
+    const userId = session?.user?.id;
+    if (userId) {
+      await supabase.from("pets").delete().eq("user_id", userId);
+    }
   }
 
   return (
@@ -90,7 +130,7 @@ export default function App() {
                   {/* Show pet summary & reset button */}
                   <ConfirmationView pet={pet} onReset={resetPet} />
                   {/* Only show chat if user is logged in */}
-                  {session?.user && <ChatView user={session.user} />}
+                  {session?.user && <ChatView user={session.user} pet={pet} />}
                 </>
               ) : (
                 /* Show pet-selection form if no pet chosen */

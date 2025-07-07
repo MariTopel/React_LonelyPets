@@ -44,7 +44,7 @@ export default async function handler(req, res) {
   });
 
   // ─── 3) Pull prompt, page & userId from the JSON body ──────────────────────
-  const { prompt, page, userId } = req.body || {};
+  const { prompt, page, userId, pet } = req.body || {};
   if (!prompt || !page || !userId) {
     return res.status(400).json({ error: "Missing prompt, page or userId" });
   }
@@ -118,8 +118,15 @@ export default async function handler(req, res) {
 
   // ─── 8) Build your system prompt + message array ────────────────────────────
   const SYSTEM_PROMPT = `
-You are a friendly virtual pet. You remember personal details (names, preferences)
-and reply in short, cheerful sentences.
+  You are a ${pet?.type || "magical creature"} named ${pet?.name || "your pet"}.
+  ${
+    pet?.personality
+      ? `You are ${pet.personality}.`
+      : "You are kind and curious."
+  }
+
+  Speak in the pet’s voice, as if talking directly to your human friend.
+  Keep replies short, friendly, and in first person.
   `.trim();
 
   const messages = [
