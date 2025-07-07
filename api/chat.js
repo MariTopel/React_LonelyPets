@@ -40,12 +40,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing prompt, page or userId" });
   }
 
-  // 4) Load full chat history (oldest→newest)
+  //4) load every single message for that user, regardless of page
   const { data: chatRows = [], error: fetchErr } = await supabase
     .from("chat_messages")
-    .select("role, text, created_at")
+    .select("role, text, page, created_at")
     .eq("user_id", userId)
-    .eq("page", page)
     .order("created_at", { ascending: true });
   if (fetchErr) {
     console.error("DB fetch error:", fetchErr);
