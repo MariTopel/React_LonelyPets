@@ -135,18 +135,13 @@ and reply in short, cheerful sentences.
     }
   }
 
-  // 7) Build the single `SYSTEM_PROMPT` + `messages` array once
-  const SYSTEM_PROMPT = `
-You are a friendly virtual pet. You remember personal details (names, preferences)
-and reply in short, cheerful sentences.
-  `.trim();
+
 
   const profileMsg = prof
     ? `Profile — name: ${prof.full_name}, color: ${prof.favorite_color}, bio: ${prof.bio}.`
     : null;
 
-  const messages = [
-    { role: "system", content: SYSTEM_PROMPT },
+
 
     // 7a) optional profile context
     ...(profileMsg ? [{ role: "system", content: profileMsg }] : []),
