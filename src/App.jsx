@@ -73,10 +73,19 @@ export default function App() {
       return;
     }
 
-    const customClient = supabase.withHeaders({
-      Authorization: `Bearer ${token}`,
-    });
+    import { createClient } from "@supabase/supabase-js";
 
+    const customClient = createClient(
+      import.meta.env.VITE_SUPABASE_URL,
+      import.meta.env.VITE_SUPABASE_ANON_KEY,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      }
+    );
     const newPet = {
       user_id: userId,
       name: data.name,
