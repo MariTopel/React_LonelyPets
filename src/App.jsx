@@ -1,5 +1,5 @@
 // src/App.jsx
-
+import { createClient } from "@supabase/supabase-js"; // make sure this is at the top
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { supabase } from "./supabaseClient";
@@ -73,7 +73,19 @@ export default function App() {
       return;
     }
 
-    // Create newPet object
+    // 🔐 Use a temporary client with user token for RLS
+    const customClient = createClient(
+      import.meta.env.VITE_SUPABASE_URL,
+      import.meta.env.VITE_SUPABASE_ANON_KEY,
+      {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      }
+    );
+
     const newPet = {
       user_id: userId,
       name: data.name,
@@ -83,7 +95,7 @@ export default function App() {
 
     console.log("🐾 Inserting pet as:", newPet);
 
-    const { data: insertedPet, error } = await supabase
+    const { data: insertedPet, error } = await customClient
       .from("pets")
       .insert([newPet])
       .select()
