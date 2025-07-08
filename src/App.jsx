@@ -72,6 +72,7 @@ export default function App() {
     };
 
     console.log("Inserting pet as:", newPet);
+    console.log("Current session:", session);
 
     const { data: insertedPet, error } = await supabase
       .from("pets")
