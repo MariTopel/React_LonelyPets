@@ -14,15 +14,10 @@ import MapPage from "./components/MapPage";
 import ProfileForm from "./components/ProfileForm";
 
 export default function App() {
-  // --- State hooks ---
-  // `pet` holds the current pet selection ({ type, name }) or null
   const [pet, setPet] = useState(null);
-  // `session` holds the Supabase auth session object or null
   const [session, setSession] = useState(null);
-  // `showLogin` toggles the login overlay visibility
   const [showLogin, setShowLogin] = useState(false);
 
-  // --- Effect: run once on component mount ---
   useEffect(() => {
     const stored = localStorage.getItem("myPet");
     if (stored) {
@@ -33,13 +28,7 @@ export default function App() {
       const userSession = data.session;
       setSession(userSession);
 
-      const session = await supabase.auth.getSession();
-      const token = session.data.session.access_token;
-
-      console.log("JWT:", token);
-
       if (userSession?.user?.id) {
-        // 🔍 Load most recent pet from Supabase
         const { data: pets, error } = await supabase
           .from("pets")
           .select("*")
@@ -67,30 +56,13 @@ export default function App() {
     };
   }, []);
 
-  // --- Handlers for pet creation & reset and save data to supabase ---
   async function savePet(data) {
     const userId = session?.user?.id;
-    const token = session?.access_token;
 
-    console.log("userId:", userId, "token:", token);
-
-    if (!userId || !token) {
+    if (!userId) {
       console.error("User not authenticated");
       return;
     }
-
-    // 🔐 Use a temporary client with user token for RLS
-    const customClient = createClient(
-      import.meta.env.VITE_SUPABASE_URL,
-      import.meta.env.VITE_SUPABASE_ANON_KEY,
-      {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      }
-    );
 
     const newPet = {
       user_id: userId,
@@ -101,14 +73,14 @@ export default function App() {
 
     console.log("Inserting pet as:", newPet);
 
-    const { data: insertedPet, error } = await customClient
+    const { data: insertedPet, error } = await supabase
       .from("pets")
       .insert([newPet])
       .select()
       .single();
 
     if (error) {
-      console.error("❌ Supabase insert error:", {
+      console.error("\u274c Supabase insert error:", {
         message: error.message,
         details: error.details,
         hint: error.hint,
@@ -133,42 +105,33 @@ export default function App() {
 
   return (
     <>
-      {/* --- Site Header with Login/Logout --- */}
       <Header
-        session={session} // current auth state
-        onLogin={() => setShowLogin(true)} // open login form
-        onLogout={() => supabase.auth.signOut()} // sign the user out
+        session={session}
+        onLogin={() => setShowLogin(true)}
+        onLogout={() => supabase.auth.signOut()}
       />
 
-      {/* --- Optional Login Overlay --- */}
-      {/* Only show when user clicks “Login” and is not yet authenticated */}
       {showLogin && !session && (
         <AuthForm onSuccess={() => setShowLogin(false)} />
       )}
 
-      {/* --- Main Application Routes --- */}
       <Routes>
-        {/* Home ("/"): either pet creation or pet confirmation + chat */}
         <Route
           path="/"
           element={
             <div className="app-container">
               {pet ? (
                 <>
-                  {/* Show pet summary & reset button */}
                   <ConfirmationView pet={pet} onReset={resetPet} />
-                  {/* Only show chat if user is logged in */}
                   {session?.user && <ChatView user={session.user} pet={pet} />}
                 </>
               ) : (
-                /* Show pet-selection form if no pet chosen */
                 <PetForm onSave={savePet} />
               )}
             </div>
           }
         />
 
-        {/* Profile editing page */}
         <Route
           path="/profile"
           element={
@@ -187,7 +150,6 @@ export default function App() {
           }
         />
 
-        {/* My Pets ("/my-pets"): dedicated summary view */}
         <Route
           path="/my-pets"
           element={
@@ -197,9 +159,7 @@ export default function App() {
           }
         />
 
-        {/* Maps section ("/maps/*") with nested routes */}
         <Route path="/maps" element={<MapsLayout />}>
-          {/* Index route: "/maps" */}
           <Route
             index
             element={
@@ -208,19 +168,16 @@ export default function App() {
               </div>
             }
           />
-          {/* Dynamic map page: "/maps/:mapId" */}
           <Route
             path=":mapId"
             element={
               <div className="app-container">
-                {/* MapPage shows map details and its ChatView */}
                 <MapPage user={session?.user} />
               </div>
             }
           />
         </Route>
 
-        {/* About page ("/about") */}
         <Route
           path="/about"
           element={
@@ -234,7 +191,6 @@ export default function App() {
           }
         />
 
-        {/* Fallback for unmatched routes (404) */}
         <Route
           path="*"
           element={
