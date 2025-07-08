@@ -34,6 +34,11 @@ export default function App() {
       const userSession = data.session;
       setSession(userSession);
 
+      const session = await supabase.auth.getSession();
+      const token = session.data.session.access_token;
+
+      console.log("JWT:", token);
+
       if (userSession?.user?.id) {
         // 🔍 Load most recent pet from Supabase
         const { data: pets, error } = await supabase
