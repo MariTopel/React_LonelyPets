@@ -68,6 +68,8 @@ export default function App() {
     const userId = session?.user?.id;
     const token = session?.access_token;
 
+    console.log("userId:", userId, "token:", token);
+
     if (!userId || !token) {
       console.error("User not authenticated");
       return;
