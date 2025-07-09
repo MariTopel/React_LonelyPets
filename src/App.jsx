@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import { supabase } from "./supabaseClient.js";
+import { supabase } from "./supabaseClient";
 
 // UI Components
 import Header from "./components/Header";
@@ -54,7 +54,6 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Handler to save pet via RPC
   async function savePet(data) {
     const userId = session?.user?.id;
     if (!userId) {
@@ -62,17 +61,27 @@ export default function App() {
       return;
     }
 
-    console.log("Inserting pet via RPC as:", userId);
+    const newPet = {
+      user_id: userId,
+      name: data.name,
+      type: data.type,
+      personality: data.personality,
+    };
 
-    const { data: insertedPet, error } = await supabase.rpc("insert_pet", {
-      p_user_id: userId,
-      p_name: data.name,
-      p_type: data.type,
-      p_personality: data.personality,
-    });
+    console.log("Inserting pet as:", newPet);
+
+    const { data: insertedPet, error } = await supabase
+      .from("pets")
+      .insert([newPet])
+      .select()
+      .single();
 
     if (error) {
-      console.error("RPC insert error:", error);
+      console.error("❌ Supabase insert error:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       return;
     }
 
