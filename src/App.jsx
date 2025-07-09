@@ -55,38 +55,40 @@ export default function App() {
   }, []);
 
   async function savePet(data) {
-    const userId = session?.user?.id;
-    if (!userId) {
-      console.error("User not authenticated");
-      return;
-    }
+    try {
+      const userId = session?.user?.id;
+      if (!userId) {
+        console.error("User not authenticated");
+        return;
+      }
 
-    const newPet = {
-      user_id: userId,
-      name: data.name,
-      type: data.type,
-      personality: data.personality,
-    };
+      const newPet = {
+        user_id: userId,
+        name: data.name,
+        type: data.type,
+        personality: data.personality,
+      };
 
-    console.log("Inserting pet as:", newPet);
+      console.log("Attempting to insert pet via RPC:", newPet);
 
-    const { data: insertedPet, error } = await supabase
-      .from("pets")
-      .insert([newPet])
-      .select()
-      .single();
-
-    if (error) {
-      console.error("❌ Supabase insert error:", {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
+      const { data: insertedPet, error } = await supabase.rpc("insert_pet", {
+        p_user_id: userId,
+        p_name: data.name,
+        p_type: data.type,
+        p_personality: data.personality,
       });
-      return;
-    }
 
-    setPet(insertedPet);
-    localStorage.setItem("myPet", JSON.stringify(insertedPet));
+      if (error) {
+        console.error("RPC insert error:", error);
+        return;
+      }
+
+      console.log("Pet inserted successfully:", insertedPet);
+      setPet(insertedPet);
+      localStorage.setItem("myPet", JSON.stringify(insertedPet));
+    } catch (err) {
+      console.error("Unexpected error in savePet:", err);
+    }
   }
 
   async function resetPet() {
