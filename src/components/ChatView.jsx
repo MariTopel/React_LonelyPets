@@ -4,29 +4,30 @@ import { supabase } from "../supabaseClient";
 import { generatePetReply } from "../utils/generatePetReply";
 
 export default function ChatView({ user, pet, page: pageProp }) {
+  // If no user, render nothing
   if (!user) return null;
 
   const [animateUser, setAnimateUser] = useState(false);
   const [lastUserMessage, setLastUserMessage] = useState(null);
 
-  // Use pet.id as the chat storage key for persistence across pages
-  const chatKey = pageProp ?? pet?.id ?? window.location.pathname;
-  // Use the actual path for AI context (prompts include location)
-  const pagePath = window.location.pathname;
+  // Derive the page key: use the prop if passed in, otherwise use the URL
+  const currentPage = pageProp || window.location.pathname;
 
+  // Local state for chat messages & input box
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const endRef = useRef();
 
   useEffect(() => {
     if (!user?.id) return;
+
     (async () => {
-      console.log("🔍 Loading chat for user", user.id, "using key", chatKey);
+      console.log("🔍 Loading chat for", user.id, "on", currentPage);
       const { data, error } = await supabase
         .from("chat_messages")
         .select("role, text")
         .eq("user_id", user.id)
-        .eq("page", chatKey)
+        .eq("page", currentPage)
         .order("created_at", { ascending: true });
 
       if (error) {
@@ -35,7 +36,7 @@ export default function ChatView({ user, pet, page: pageProp }) {
         setMessages(data || []);
       }
     })();
-  }, [user?.id, chatKey]);
+  }, [user?.id, currentPage]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,37 +47,36 @@ export default function ChatView({ user, pet, page: pageProp }) {
     const text = input.trim();
     if (!text) return;
 
-    // Optimistically clear input
     setInput("");
 
-    // Persist user message under chatKey
     await supabase.from("chat_messages").insert({
       user_id: user.id,
       role: "user",
       text,
-      page: chatKey,
+      page: currentPage,
     });
-    const userMsg = { role: "user", text };
-    setMessages((prev) => [...prev, userMsg].slice(-50));
-    setLastUserMessage(userMsg);
+
+    const newMessage = { role: "user", text };
+    setMessages((prev) => [...prev, newMessage].slice(-50));
+    setLastUserMessage(newMessage);
     setAnimateUser(true);
     setTimeout(() => {
       setAnimateUser(false);
       setLastUserMessage(null);
     }, 300);
 
-    // Generate AI reply using pagePath for context
-    const aiReply = await generatePetReply(text, pagePath, user.id, pet);
+    const aiReply = await generatePetReply(text, currentPage, user.id, pet);
 
-    // Persist assistant message under chatKey
     await supabase.from("chat_messages").insert({
       user_id: user.id,
       role: "assistant",
       text: aiReply,
-      page: chatKey,
+      page: currentPage,
     });
-    const petMsg = { role: "assistant", text: aiReply };
-    setMessages((prev) => [...prev, petMsg].slice(-50));
+
+    setMessages((prev) =>
+      [...prev, { role: "assistant", text: aiReply }].slice(-50)
+    );
   }
 
   return (
@@ -86,20 +86,25 @@ export default function ChatView({ user, pet, page: pageProp }) {
       <div id="chat-messages">
         {messages.map((m, i) => {
           const isUser = m.role === "user";
+          const isPet = m.role === "assistant";
+
           const isLatestUser = isUser && animateUser && m === lastUserMessage;
-          const isLatestPet = !isUser && i === messages.length - 1;
+          const isLatestPet = isPet && i === messages.length - 1;
+
           const extraClass = isLatestUser
             ? "user-fade-in"
             : isLatestPet
             ? "fade-in"
             : "";
+
           const key = `${m.role}-${i}-${m.text.slice(0, 10)}`;
+
           return (
             <div
               key={key}
               className={`chat-bubble ${m.role}-bubble ${extraClass}`}
             >
-              <strong>{isUser ? "You" : pet?.name || "Pet"}:</strong> {m.text}
+              <strong>{isUser ? "You" : "Pet"}:</strong> {m.text}
             </div>
           );
         })}
