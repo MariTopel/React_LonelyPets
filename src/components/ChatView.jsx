@@ -9,8 +9,10 @@ export default function ChatView({ user, pet, page: pageProp }) {
   const [animateUser, setAnimateUser] = useState(false);
   const [lastUserMessage, setLastUserMessage] = useState(null);
 
-  // Derive chat namespace: use provided pageProp, else pet.id for persistence
-  const currentPage = pageProp ?? pet?.id ?? window.location.pathname;
+  // Use pet.id as the chat storage key for persistence across pages
+  const chatKey = pageProp ?? pet?.id ?? window.location.pathname;
+  // Use the actual path for AI context (prompts include location)
+  const pagePath = window.location.pathname;
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -19,12 +21,12 @@ export default function ChatView({ user, pet, page: pageProp }) {
   useEffect(() => {
     if (!user?.id) return;
     (async () => {
-      console.log("🔍 Loading chat for", user.id, "on", currentPage);
+      console.log("🔍 Loading chat for user", user.id, "using key", chatKey);
       const { data, error } = await supabase
         .from("chat_messages")
         .select("role, text")
         .eq("user_id", user.id)
-        .eq("page", currentPage)
+        .eq("page", chatKey)
         .order("created_at", { ascending: true });
 
       if (error) {
@@ -33,7 +35,7 @@ export default function ChatView({ user, pet, page: pageProp }) {
         setMessages(data || []);
       }
     })();
-  }, [user?.id, currentPage]);
+  }, [user?.id, chatKey]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -44,39 +46,43 @@ export default function ChatView({ user, pet, page: pageProp }) {
     const text = input.trim();
     if (!text) return;
 
+    // Optimistically clear input
     setInput("");
 
+    // Persist user message under chatKey
     await supabase.from("chat_messages").insert({
       user_id: user.id,
       role: "user",
       text,
-      page: currentPage,
+      page: chatKey,
     });
-    const newMessage = { role: "user", text };
-    setMessages((prev) => [...prev, newMessage].slice(-50));
-    setLastUserMessage(newMessage);
+    const userMsg = { role: "user", text };
+    setMessages((prev) => [...prev, userMsg].slice(-50));
+    setLastUserMessage(userMsg);
     setAnimateUser(true);
     setTimeout(() => {
       setAnimateUser(false);
       setLastUserMessage(null);
     }, 300);
 
-    // Generate and persist AI reply
-    const aiReply = await generatePetReply(text, currentPage, user.id, pet);
+    // Generate AI reply using pagePath for context
+    const aiReply = await generatePetReply(text, pagePath, user.id, pet);
+
+    // Persist assistant message under chatKey
     await supabase.from("chat_messages").insert({
       user_id: user.id,
       role: "assistant",
       text: aiReply,
-      page: currentPage,
+      page: chatKey,
     });
-    setMessages((prev) =>
-      [...prev, { role: "assistant", text: aiReply }].slice(-50)
-    );
+    const petMsg = { role: "assistant", text: aiReply };
+    setMessages((prev) => [...prev, petMsg].slice(-50));
   }
 
   return (
     <section id="chat">
       <h2>Chat with your pet</h2>
+
       <div id="chat-messages">
         {messages.map((m, i) => {
           const isUser = m.role === "user";
@@ -99,6 +105,7 @@ export default function ChatView({ user, pet, page: pageProp }) {
         })}
         <div ref={endRef} />
       </div>
+
       <div id="chat-input-area">
         <input
           value={input}
