@@ -33,11 +33,11 @@ export default function App() {
           .from("pets")
           .select("*")
           .eq("user_id", userSession.user.id)
-          .order("created_at", { ascending: false })
+          .order("created_at", { ascending: true })
           .limit(1);
 
         if (error) {
-          console.error("Failed to load pet from Supabase:", error);
+          console.error("Failed to load pet:", error);
         } else if (pets.length > 0) {
           setPet(pets[0]);
           localStorage.setItem("myPet", JSON.stringify(pets[0]));
@@ -51,44 +51,28 @@ export default function App() {
       setSession(newSession);
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
+  // Handler to save pet via RPC
   async function savePet(data) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession(); // refresh session to get latest token
-
     const userId = session?.user?.id;
     if (!userId) {
       console.error("User not authenticated");
       return;
     }
 
-    const newPet = {
-      user_id: userId,
-      name: data.name,
-      type: data.type,
-      personality: data.personality,
-    };
+    console.log("Inserting pet via RPC as:", userId);
 
-    console.log("Inserting pet as:", newPet);
-    console.log("Session (from rehydrate):", session);
-
-    const { data: insertedPet, error } = await supabase
-      .from("pets")
-      .insert([newPet])
-      .select()
-      .single();
+    const { data: insertedPet, error } = await supabase.rpc("insert_pet", {
+      p_user_id: userId,
+      p_name: data.name,
+      p_type: data.type,
+      p_personality: data.personality,
+    });
 
     if (error) {
-      console.error("❌ Supabase insert error:", {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-      });
+      console.error("RPC insert error:", error);
       return;
     }
 
@@ -141,12 +125,7 @@ export default function App() {
           element={
             <div className="app-container">
               {session?.user ? (
-                <ProfileForm
-                  user={session.user}
-                  onSaved={() => {
-                    /* e.g. navigate("/") or close a modal */
-                  }}
-                />
+                <ProfileForm user={session.user} onSaved={() => {}} />
               ) : (
                 <p>Please log in to edit your profile.</p>
               )}
