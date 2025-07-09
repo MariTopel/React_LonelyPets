@@ -73,6 +73,8 @@ export default function App() {
 
     console.log("Inserting pet as:", newPet);
     console.log("Current session:", session);
+    const sessionCheck = await supabase.auth.getSession();
+    console.log("🔒 Session check before insert:", sessionCheck);
 
     const { data: insertedPet, error } = await supabase
       .from("pets")
