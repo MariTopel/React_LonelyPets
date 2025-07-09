@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import { supabase } from "./supabaseClient";
+import { supabase } from "./supabaseClient.js";
 
 // UI Components
 import Header from "./components/Header";
@@ -57,8 +57,11 @@ export default function App() {
   }, []);
 
   async function savePet(data) {
-    const userId = session?.user?.id;
+    const {
+      data: { session },
+    } = await supabase.auth.getSession(); // refresh session to get latest token
 
+    const userId = session?.user?.id;
     if (!userId) {
       console.error("User not authenticated");
       return;
@@ -72,9 +75,7 @@ export default function App() {
     };
 
     console.log("Inserting pet as:", newPet);
-    console.log("Current session:", session);
-    const sessionCheck = await supabase.auth.getSession();
-    console.log("🔒 Session check before insert:", sessionCheck);
+    console.log("Session (from rehydrate):", session);
 
     const { data: insertedPet, error } = await supabase
       .from("pets")
@@ -83,7 +84,7 @@ export default function App() {
       .single();
 
     if (error) {
-      console.error("\u274c Supabase insert error:", {
+      console.error("❌ Supabase insert error:", {
         message: error.message,
         details: error.details,
         hint: error.hint,
