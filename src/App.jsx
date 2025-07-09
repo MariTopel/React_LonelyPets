@@ -71,7 +71,8 @@ export default function App() {
 
       console.log("Attempting to insert pet via RPC:", newPet);
 
-      const { data: insertedPet, error } = await supabase.rpc("insert_pet", {
+      // Use RPC to insert and unwrap the result array
+      const { data: rpcResult, error } = await supabase.rpc("insert_pet", {
         p_user_id: userId,
         p_name: data.name,
         p_type: data.type,
@@ -83,7 +84,10 @@ export default function App() {
         return;
       }
 
+      // rpcResult returns an array of inserted rows; take the first
+      const insertedPet = Array.isArray(rpcResult) ? rpcResult[0] : rpcResult;
       console.log("Pet inserted successfully:", insertedPet);
+
       setPet(insertedPet);
       localStorage.setItem("myPet", JSON.stringify(insertedPet));
     } catch (err) {
